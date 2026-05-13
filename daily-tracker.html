@@ -1,0 +1,2409 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>متابعتي اليومية</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --surface: #111318;
+    --surface2: #1a1d24;
+    --surface3: #22262f;
+    --border: #2a2f3a;
+    --accent: #4f8ef7;
+    --accent2: #7c3aed;
+    --gold: #f59e0b;
+    --green: #10b981;
+    --red: #ef4444;
+    --orange: #f97316;
+    --text: #e8eaf0;
+    --text2: #9199aa;
+    --text3: #5a6070;
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Cairo', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    max-width: 480px;
+    margin: 0 auto;
+    padding-bottom: 80px;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #0f1420 0%, #1a1030 100%);
+    padding: 20px 16px 16px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+  }
+
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .app-title {
+    font-size: 20px;
+    font-weight: 900;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .date-display {
+    font-size: 13px;
+    color: var(--text2);
+    font-weight: 600;
+  }
+
+  /* Date Navigation */
+  .date-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface2);
+    border-radius: var(--radius);
+    padding: 8px 12px;
+  }
+
+  .date-nav button {
+    background: var(--surface3);
+    border: none;
+    color: var(--text2);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .date-nav button:active { transform: scale(0.92); background: var(--accent); color: white; }
+
+  .date-nav .current-date {
+    flex: 1;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .today-btn {
+    background: var(--accent) !important;
+    color: white !important;
+    font-size: 11px !important;
+    width: auto !important;
+    padding: 0 10px !important;
+    font-family: 'Cairo', sans-serif;
+    font-weight: 700;
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+    position: sticky;
+    top: 116px;
+    z-index: 99;
+  }
+
+  .tabs::-webkit-scrollbar { display: none; }
+
+  .tab-btn {
+    flex: 1;
+    min-width: 80px;
+    padding: 12px 8px;
+    border: none;
+    background: transparent;
+    color: var(--text3);
+    font-family: 'Cairo', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+  }
+
+  .tab-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    background: rgba(79,142,247,0.05);
+  }
+
+  .tab-btn span { display: block; font-size: 18px; margin-bottom: 2px; }
+
+  /* Content */
+  .content { padding: 16px; }
+
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+
+  .card-header {
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .card-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .card-title {
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  .card-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  .card-body { padding: 14px 16px; }
+
+  .collapse-btn {
+    font-size: 12px;
+    color: var(--text3);
+    transition: transform 0.2s;
+  }
+
+  .card.collapsed .collapse-btn { transform: rotate(-90deg); }
+  .card.collapsed .card-body { display: none; }
+
+  /* Progress Ring */
+  .progress-badge {
+    background: var(--surface2);
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  /* Gym Section */
+  .exercise-item {
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    margin-bottom: 8px;
+    border: 1px solid var(--border);
+  }
+
+  .exercise-name {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .sets-container { display: flex; flex-direction: column; gap: 6px; }
+
+  .set-row {
+    display: grid;
+    grid-template-columns: 28px 1fr 1fr 36px;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .set-num {
+    font-size: 11px;
+    color: var(--text3);
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .set-input {
+    background: var(--surface3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 8px;
+    color: var(--text);
+    font-family: 'Cairo', sans-serif;
+    font-size: 13px;
+    text-align: center;
+    width: 100%;
+    outline: none;
+  }
+
+  .set-input:focus { border-color: var(--accent); }
+  .set-input::placeholder { color: var(--text3); font-size: 11px; }
+
+  .set-done {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 2px solid var(--border);
+    background: transparent;
+    color: var(--text3);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: all 0.2s;
+  }
+
+  .set-done.done {
+    background: var(--green);
+    border-color: var(--green);
+    color: white;
+  }
+
+  .add-set-btn, .add-exercise-btn {
+    background: transparent;
+    border: 1px dashed var(--border);
+    color: var(--text3);
+    border-radius: 8px;
+    padding: 8px;
+    width: 100%;
+    font-family: 'Cairo', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: all 0.2s;
+  }
+
+  .add-exercise-btn {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(79,142,247,0.05);
+    padding: 12px;
+    font-weight: 700;
+    font-size: 14px;
+    margin-top: 0;
+  }
+
+  .add-set-btn:active, .add-exercise-btn:active { transform: scale(0.97); }
+
+  .delete-btn {
+    background: none;
+    border: none;
+    color: var(--text3);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+  }
+
+  .delete-btn:active { opacity: 1; color: var(--red); }
+
+  /* Muscle Group Tag */
+  .muscle-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+
+  .muscle-tag {
+    background: rgba(79,142,247,0.15);
+    color: var(--accent);
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid rgba(79,142,247,0.3);
+    transition: all 0.2s;
+  }
+
+  .muscle-tag.active {
+    background: var(--accent);
+    color: white;
+  }
+
+  /* Food Section */
+  .food-row {
+    display: grid;
+    grid-template-columns: 1fr 80px 36px;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .food-input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 12px;
+    color: var(--text);
+    font-family: 'Cairo', sans-serif;
+    font-size: 13px;
+    outline: none;
+    width: 100%;
+  }
+
+  .food-input:focus { border-color: var(--accent); }
+
+  .food-check {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 2px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .food-check.done { background: var(--green); border-color: var(--green); }
+
+  .add-food-btn {
+    background: transparent;
+    border: 1px dashed var(--border);
+    color: var(--text3);
+    border-radius: 8px;
+    padding: 10px;
+    width: 100%;
+    font-family: 'Cairo', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    margin-top: 4px;
+    transition: all 0.2s;
+  }
+
+  /* Vitamins */
+  .vitamin-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .vitamin-item {
+    background: var(--surface2);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  .vitamin-item.done {
+    border-color: var(--green);
+    background: rgba(16,185,129,0.1);
+  }
+
+  .vitamin-item.done .vitamin-name { color: var(--green); }
+
+  .vitamin-emoji { font-size: 22px; }
+  .vitamin-name { font-size: 13px; font-weight: 700; flex: 1; }
+  .vitamin-time { font-size: 11px; color: var(--text3); }
+
+  .vitamin-check {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    font-size: 14px;
+  }
+
+  /* Prayer Section */
+  .prayer-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .prayer-item {
+    background: var(--surface2);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .prayer-item.done {
+    border-color: var(--gold);
+    background: rgba(245,158,11,0.1);
+  }
+
+  .prayer-emoji { font-size: 24px; margin-bottom: 4px; }
+  .prayer-name { font-size: 13px; font-weight: 700; }
+  .prayer-check { font-size: 16px; margin-top: 4px; color: var(--text3); }
+  .prayer-item.done .prayer-check { color: var(--gold); }
+
+  /* Adhkar */
+  .adhkar-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .adhkar-item.done {
+    border-color: var(--gold);
+    background: rgba(245,158,11,0.08);
+  }
+
+  .adhkar-counter {
+    background: var(--surface3);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 16px;
+    font-weight: 900;
+    color: var(--accent);
+    min-width: 44px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .adhkar-item.done .adhkar-counter { color: var(--gold); }
+
+  .adhkar-text { flex: 1; font-size: 14px; font-weight: 600; }
+  .adhkar-target { font-size: 11px; color: var(--text3); }
+
+  .adhkar-tap-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: var(--surface3);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+
+  .adhkar-tap-btn:active { transform: scale(0.85); background: var(--gold); color: white; }
+  .adhkar-item.done .adhkar-tap-btn { background: rgba(245,158,11,0.2); border-color: var(--gold); }
+
+  /* Tasks Section */
+  .task-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    transition: all 0.2s;
+  }
+
+  .task-item.done .task-text { text-decoration: line-through; color: var(--text3); }
+
+  .task-check-btn {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    border: 2px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    transition: all 0.2s;
+  }
+
+  .task-check-btn.done { background: var(--green); border-color: var(--green); color: white; }
+
+  .task-text { flex: 1; font-size: 14px; font-weight: 600; line-height: 1.5; }
+  .task-badge {
+    font-size: 10px;
+    border-radius: 10px;
+    padding: 2px 7px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .badge-daily { background: rgba(79,142,247,0.2); color: var(--accent); }
+  .badge-weekly { background: rgba(124,58,237,0.2); color: var(--accent2); }
+  .badge-once { background: rgba(16,185,129,0.2); color: var(--green); }
+
+  /* Add Task */
+  .add-task-form {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+
+  .add-task-form input, .add-task-form select {
+    background: var(--surface3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 12px;
+    color: var(--text);
+    font-family: 'Cairo', sans-serif;
+    font-size: 13px;
+    outline: none;
+    width: 100%;
+    margin-bottom: 8px;
+  }
+
+  .add-task-form select { cursor: pointer; }
+
+  .add-task-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+  }
+
+  .submit-btn {
+    background: var(--accent);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-family: 'Cairo', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 9px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .submit-btn:active { transform: scale(0.95); background: #3a7de8; }
+
+  /* Weekly Tasks */
+  .weekly-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .section-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* Overview / Stats */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .stat-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    text-align: center;
+  }
+
+  .stat-value {
+    font-size: 26px;
+    font-weight: 900;
+    margin-bottom: 4px;
+  }
+
+  .stat-label { font-size: 11px; color: var(--text2); font-weight: 600; }
+
+  .progress-bar-wrap {
+    background: var(--surface3);
+    border-radius: 10px;
+    height: 6px;
+    margin-top: 6px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.5s ease;
+  }
+
+  /* Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border-radius: 20px 20px 0 0;
+    width: 100%;
+    max-width: 480px;
+    padding: 20px;
+    border-top: 1px solid var(--border);
+    animation: slideUp 0.25s ease;
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  .modal-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  .modal input, .modal select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: 'Cairo', sans-serif;
+    font-size: 14px;
+    outline: none;
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .modal-btns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .modal-btn {
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    font-family: 'Cairo', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .modal-btn.primary { background: var(--accent); color: white; }
+  .modal-btn.secondary { background: var(--surface2); color: var(--text2); }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 700;
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 300;
+    white-space: nowrap;
+  }
+
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* Empty state */
+  .empty {
+    text-align: center;
+    padding: 30px;
+    color: var(--text3);
+    font-size: 13px;
+  }
+
+  .empty-emoji { font-size: 36px; margin-bottom: 10px; }
+
+  /* Finance */
+  .finance-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .fin-stat {
+    border-radius: var(--radius-sm);
+    padding: 12px 8px;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+
+  .fin-stat-value { font-size: 17px; font-weight: 900; margin-bottom: 2px; }
+  .fin-stat-label { font-size: 10px; color: var(--text3); font-weight: 700; }
+
+  .fin-row {
+    display: grid;
+    grid-template-columns: 1fr 90px 36px;
+    gap: 6px;
+    align-items: center;
+    margin-bottom: 7px;
+  }
+
+  .fin-input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    color: var(--text);
+    font-family: 'Cairo', sans-serif;
+    font-size: 13px;
+    outline: none;
+    width: 100%;
+  }
+
+  .fin-input:focus { border-color: var(--accent); }
+
+  .fin-type-toggle {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+
+  .fin-type-btn {
+    flex: 1;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text2);
+    font-family: 'Cairo', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .fin-type-btn.income.active { background: rgba(16,185,129,0.15); border-color: var(--green); color: var(--green); }
+  .fin-type-btn.expense.active { background: rgba(239,68,68,0.15); border-color: var(--red); color: var(--red); }
+
+  .fin-entry {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    margin-bottom: 7px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .fin-entry-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .fin-entry-name { flex: 1; font-size: 13px; font-weight: 600; }
+  .fin-entry-amount { font-size: 14px; font-weight: 900; }
+  .fin-entry-cat { font-size: 10px; color: var(--text3); }
+
+  .budget-bar {
+    background: var(--surface3);
+    border-radius: 10px;
+    height: 8px;
+    margin: 8px 0;
+    overflow: hidden;
+  }
+
+  .budget-bar-fill { height: 100%; border-radius: 10px; transition: width 0.5s; }
+
+  /* Plan Section */
+  .plan-hero {
+    background: linear-gradient(135deg, #0f2a1a 0%, #0a1a30 100%);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+
+  .plan-hero-title { font-size: 18px; font-weight: 900; color: var(--green); margin-bottom: 4px; }
+  .plan-hero-sub { font-size: 12px; color: var(--text2); }
+
+  .plan-macros {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin: 12px 0;
+  }
+
+  .macro-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 6px;
+    text-align: center;
+  }
+
+  .macro-value { font-size: 18px; font-weight: 900; }
+  .macro-label { font-size: 10px; color: var(--text3); font-weight: 700; margin-top: 2px; }
+
+  .plan-day {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+
+  .plan-day-header {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .plan-day-name { font-size: 14px; font-weight: 700; }
+  .plan-day-type { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+
+  .plan-day-body { padding: 12px 16px; }
+
+  .plan-exercise-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  .plan-exercise-row:last-child { border-bottom: none; }
+  .plan-ex-name { font-weight: 700; flex: 1; }
+  .plan-ex-sets { color: var(--text2); font-size: 12px; }
+
+  .meal-plan-row {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  .meal-plan-row:last-child { border-bottom: none; }
+  .meal-plan-name { font-weight: 700; color: var(--green); margin-bottom: 2px; }
+  .meal-plan-detail { color: var(--text2); font-size: 12px; }
+
+  .tip-box {
+    background: rgba(79,142,247,0.08);
+    border: 1px solid rgba(79,142,247,0.2);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    font-size: 12px;
+    color: var(--text2);
+    margin-top: 8px;
+    line-height: 1.6;
+  }
+
+  .tip-box strong { color: var(--accent); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  /* Gym day type */
+  .day-type-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+
+  .day-type-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Cairo', sans-serif;
+    transition: all 0.2s;
+  }
+
+  .day-type-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+
+  /* Water tracker */
+  .water-tracker {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .water-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: var(--surface2);
+    color: var(--text);
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+
+  .water-btn:active { transform: scale(0.85); }
+
+  .water-count {
+    flex: 1;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 900;
+    color: #60a5fa;
+  }
+
+  .water-cups {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+
+  .water-cup { font-size: 20px; opacity: 0.3; transition: opacity 0.2s; }
+  .water-cup.filled { opacity: 1; }
+
+  /* Note area */
+  .note-area {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    color: var(--text);
+    font-family: 'Cairo', sans-serif;
+    font-size: 13px;
+    outline: none;
+    width: 100%;
+    min-height: 80px;
+    resize: none;
+  }
+
+  .note-area:focus { border-color: var(--accent); }
+
+  /* Save indicator */
+  .save-indicator {
+    font-size: 11px;
+    color: var(--text3);
+    text-align: center;
+    padding: 6px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div class="app-title">📊 متابعتي</div>
+    <div class="date-display" id="hijriDate"></div>
+  </div>
+  <div class="date-nav">
+    <button onclick="changeDay(-1)">›</button>
+    <div class="current-date" id="currentDateDisplay"></div>
+    <button class="today-btn" onclick="goToday()">اليوم</button>
+    <button onclick="changeDay(1)">‹</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('gym', this)"><span>🏋️</span>الجيم</button>
+  <button class="tab-btn" onclick="switchTab('food', this)"><span>🥗</span>الأكل</button>
+  <button class="tab-btn" onclick="switchTab('prayer', this)"><span>🕌</span>العبادة</button>
+  <button class="tab-btn" onclick="switchTab('tasks', this)"><span>✅</span>المهام</button>
+  <button class="tab-btn" onclick="switchTab('finance', this)"><span>💰</span>مصاريف</button>
+  <button class="tab-btn" onclick="switchTab('plan', this)"><span>🥩</span>خطتي</button>
+  <button class="tab-btn" onclick="switchTab('overview', this)"><span>📈</span>ملخص</button>
+</div>
+
+<div class="content">
+
+  <!-- ===== GYM ===== -->
+  <div id="section-gym" class="section active">
+    <div class="card" style="margin-bottom:12px;">
+      <div class="card-body">
+        <div class="day-type-row" id="gymDayTypes">
+          <button class="day-type-btn" onclick="setDayType('chest', this)">صدر 💪</button>
+          <button class="day-type-btn" onclick="setDayType('back', this)">ظهر 🦾</button>
+          <button class="day-type-btn" onclick="setDayType('legs', this)">أرجل 🦵</button>
+          <button class="day-type-btn" onclick="setDayType('shoulders', this)">أكتاف 🏋️</button>
+          <button class="day-type-btn" onclick="setDayType('arms', this)">أذرع 💪</button>
+          <button class="day-type-btn" onclick="setDayType('cardio', this)">كارديو 🏃</button>
+          <button class="day-type-btn" onclick="setDayType('rest', this)">راحة 😴</button>
+          <button class="day-type-btn" onclick="setDayType('full', this)">فول بودي 🔥</button>
+        </div>
+        <textarea class="note-area" placeholder="ملاحظات اليوم في الجيم..." id="gymNotes" oninput="saveGymNotes()" rows="2"></textarea>
+      </div>
+    </div>
+
+    <div id="exerciseList"></div>
+
+    <button class="add-exercise-btn" onclick="openAddExerciseModal()">+ إضافة تمرين</button>
+  </div>
+
+  <!-- ===== FOOD ===== -->
+  <div id="section-food" class="section">
+
+    <!-- Water -->
+    <div class="card">
+      <div class="card-header" onclick="toggleCard(this)">
+        <div class="card-header-left">
+          <div class="card-icon" style="background: rgba(96,165,250,0.15)">💧</div>
+          <div class="card-title">الماء</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="progress-badge" style="color:#60a5fa" id="waterBadge">0 / 8</div>
+          <span class="collapse-btn">▼</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="water-tracker">
+          <button class="water-btn" onclick="addWater(-1)">−</button>
+          <div>
+            <div class="water-count" id="waterCount">0 كوب</div>
+            <div class="water-cups" id="waterCups"></div>
+          </div>
+          <button class="water-btn" onclick="addWater(1)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Meals -->
+    <div class="card">
+      <div class="card-header" onclick="toggleCard(this)">
+        <div class="card-header-left">
+          <div class="card-icon" style="background: rgba(16,185,129,0.15)">🍽️</div>
+          <div class="card-title">الوجبات</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="progress-badge" style="color:var(--green)" id="mealBadge">0</div>
+          <span class="collapse-btn">▼</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div id="mealList"></div>
+        <button class="add-food-btn" onclick="addMeal()">+ إضافة وجبة</button>
+      </div>
+    </div>
+
+    <!-- Vitamins -->
+    <div class="card">
+      <div class="card-header" onclick="toggleCard(this)">
+        <div class="card-header-left">
+          <div class="card-icon" style="background: rgba(245,158,11,0.15)">💊</div>
+          <div class="card-title">الفيتامينات والمكملات</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="progress-badge" style="color:var(--gold)" id="vitaminBadge">0</div>
+          <span class="collapse-btn">▼</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="vitamin-grid" id="vitaminGrid"></div>
+        <button class="add-food-btn" onclick="openAddVitaminModal()">+ إضافة مكمل / فيتامين</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== PRAYER ===== -->
+  <div id="section-prayer" class="section">
+
+    <!-- Prayers -->
+    <div class="card">
+      <div class="card-header" onclick="toggleCard(this)">
+        <div class="card-header-left">
+          <div class="card-icon" style="background: rgba(245,158,11,0.15)">🕌</div>
+          <div class="card-title">الصلوات</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="progress-badge" style="color:var(--gold)" id="prayerBadge">0 / 5</div>
+          <span class="collapse-btn">▼</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="prayer-grid" id="prayerGrid"></div>
+      </div>
+    </div>
+
+    <!-- Adhkar -->
+    <div class="card">
+      <div class="card-header" onclick="toggleCard(this)">
+        <div class="card-header-left">
+          <div class="card-icon" style="background: rgba(124,58,237,0.15)">📿</div>
+          <div class="card-title">الأذكار</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="progress-badge" style="color:var(--accent2)" id="adhkarBadge">0</div>
+          <span class="collapse-btn">▼</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div id="adhkarList"></div>
+        <button class="add-food-btn" onclick="openAddAdhkarModal()" style="border-color:var(--accent2);color:var(--accent2);background:rgba(124,58,237,0.05)">+ إضافة ذكر</button>
+      </div>
+    </div>
+
+    <!-- Worship extras -->
+    <div class="card">
+      <div class="card-header" onclick="toggleCard(this)">
+        <div class="card-header-left">
+          <div class="card-icon" style="background: rgba(245,158,11,0.15)">📖</div>
+          <div class="card-title">العبادات الإضافية</div>
+        </div>
+        <span class="collapse-btn">▼</span>
+      </div>
+      <div class="card-body">
+        <div id="worshipList"></div>
+        <button class="add-food-btn" onclick="addWorshipItem()" style="border-color:var(--gold);color:var(--gold);background:rgba(245,158,11,0.05)">+ إضافة</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== TASKS ===== -->
+  <div id="section-tasks" class="section">
+
+    <div class="add-task-form">
+      <input type="text" id="newTaskInput" placeholder="مهمة جديدة..." onkeydown="if(event.key==='Enter') addTask()">
+      <div class="add-task-row">
+        <select id="newTaskType">
+          <option value="once">مرة واحدة 🔵</option>
+          <option value="daily">يومي 🔄</option>
+          <option value="weekly">أسبوعي 📅</option>
+        </select>
+        <button class="submit-btn" onclick="addTask()">إضافة</button>
+      </div>
+    </div>
+
+    <!-- Today tasks -->
+    <div class="weekly-header">
+      <div class="section-label">مهام اليوم</div>
+      <span id="tasksBadge" class="progress-badge" style="color:var(--green)">0</span>
+    </div>
+    <div id="taskList"></div>
+
+    <!-- Weekly recurring -->
+    <div class="weekly-header" style="margin-top:16px;">
+      <div class="section-label">المهام الأسبوعية</div>
+    </div>
+    <div id="weeklyTaskList"></div>
+
+  </div>
+
+  <!-- ===== FINANCE ===== -->
+  <div id="section-finance" class="section">
+
+    <!-- Summary -->
+    <div class="finance-summary">
+      <div class="fin-stat" style="background:rgba(16,185,129,0.08);border-color:rgba(16,185,129,0.3)">
+        <div class="fin-stat-value" style="color:var(--green)" id="totalIncome">0</div>
+        <div class="fin-stat-label">الدخل</div>
+      </div>
+      <div class="fin-stat" style="background:rgba(239,68,68,0.08);border-color:rgba(239,68,68,0.3)">
+        <div class="fin-stat-value" style="color:var(--red)" id="totalExpense">0</div>
+        <div class="fin-stat-label">المصروف</div>
+      </div>
+      <div class="fin-stat" id="balanceStat">
+        <div class="fin-stat-value" id="totalBalance">0</div>
+        <div class="fin-stat-label">الباقي</div>
+      </div>
+    </div>
+
+    <!-- Budget bar -->
+    <div class="card" style="margin-bottom:12px;">
+      <div class="card-body">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:4px;">
+          <span>نسبة المصروف</span>
+          <span id="expensePct">0%</span>
+        </div>
+        <div class="budget-bar">
+          <div class="budget-bar-fill" id="budgetBarFill" style="width:0%;background:var(--green)"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Entry -->
+    <div class="card" style="margin-bottom:12px;">
+      <div class="card-header" onclick="toggleCard(this)">
+        <div class="card-header-left">
+          <div class="card-title">➕ إضافة حركة مالية</div>
+        </div>
+        <span class="collapse-btn">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="fin-type-toggle">
+          <button class="fin-type-btn income active" id="finTypeIncome" onclick="setFinType('income')">⬆️ دخل</button>
+          <button class="fin-type-btn expense" id="finTypeExpense" onclick="setFinType('expense')">⬇️ مصروف</button>
+        </div>
+        <input class="fin-input" id="finDesc" placeholder="الوصف (مثلاً: راتب، سوبرماركت...)" style="margin-bottom:8px;">
+        <div style="display:grid;grid-template-columns:1fr auto;gap:8px;">
+          <input class="fin-input" id="finAmount" type="number" placeholder="المبلغ" min="0">
+          <button class="submit-btn" onclick="addFinEntry()">إضافة</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Entries List -->
+    <div class="weekly-header">
+      <div class="section-label">الحركات المالية</div>
+      <span id="finCount" class="progress-badge" style="color:var(--text2)">0</span>
+    </div>
+    <div id="finList"></div>
+
+  </div>
+
+  <!-- ===== PLAN ===== -->
+  <div id="section-plan" class="section">
+
+    <div class="plan-hero">
+      <div class="plan-hero-title">🏆 خطة Lean Bulking المخصصة</div>
+      <div class="plan-hero-sub">27 سنة · 183 سم · 74 كجم &larr; الهدف 85 كجم</div>
+    </div>
+
+    <!-- Macros -->
+    <div class="card" style="margin-bottom:12px;">
+      <div class="card-header" onclick="toggleCard(this)">
+        <div class="card-header-left">
+          <div class="card-icon" style="background:rgba(16,185,129,0.15)">🥩</div>
+          <div class="card-title">الماكروز اليومية المستهدفة</div>
+        </div>
+        <span class="collapse-btn">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="plan-macros">
+          <div class="macro-card">
+            <div class="macro-value" style="color:var(--orange)">3100</div>
+            <div class="macro-label">سعرات</div>
+          </div>
+          <div class="macro-card">
+            <div class="macro-value" style="color:var(--red)">185 جم</div>
+            <div class="macro-label">بروتين</div>
+          </div>
+          <div class="macro-card">
+            <div class="macro-value" style="color:var(--accent)">370 جم</div>
+            <div class="macro-label">كارب</div>
+          </div>
+          <div class="macro-card">
+            <div class="macro-value" style="color:var(--gold)">85 جم</div>
+            <div class="macro-label">دهون</div>
+          </div>
+        </div>
+        <div class="tip-box">
+          <strong>📌 الحساب:</strong> وزنك 74 كجم × TDEE (4 أيام جيم) ≈ 2650 سعرة + 450 فائض = 3100 سعرة يومياً.
+          <strong>البروتين:</strong> 2.5 جم لكل كجم من وزن الجسم.
+        </div>
+      </div>
+    </div>
+
+    <!-- Training Plan -->
+    <div class="card" style="margin-bottom:12px;">
+      <div class="card-header" onclick="toggleCard(this)">
+        <div class="card-header-left">
+          <div class="card-icon" style="background:rgba(79,142,247,0.15)">🏋️</div>
+          <div class="card-title">برنامج Push / Pull / Legs / Upper</div>
+        </div>
+        <span class="collapse-btn">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="tip-box" style="margin-bottom:12px;">
+          <strong>🗓️ الجدول:</strong> الاثنين Push · الثلاثاء Pull · الخميس Legs · الجمعة Upper &mdash; راحة باقي الأيام
+        </div>
+
+        <!-- Push Day -->
+        <div class="plan-day">
+          <div class="plan-day-header" onclick="toggleCard(this)">
+            <div class="plan-day-name">يوم 1 — الاثنين</div>
+            <span class="plan-day-type" style="background:rgba(239,68,68,0.15);color:var(--red)">PUSH 🔴</span>
+          </div>
+          <div class="plan-day-body">
+            <div style="font-size:11px;color:var(--text3);margin-bottom:8px;font-weight:700;">صدر + أكتاف + ترايسبس</div>
+            <div class="plan-exercise-row"><span class="plan-ex-name">بنش بريس (Bench Press)</span><span class="plan-ex-sets">4 × 5-6</span></div>
+            <div class="plan-exercise-row"><span class="plan-ex-name">انكلاين دمبل بريس</span><span class="plan-ex-sets">3 × 8-10</span></div>
+            <div class="plan-exercise-row"><span class="plan-ex-name">أوفر هيد بريس (OHP)</span><span class="plan-ex-sets">3 × 8-10</span></div>
+            <div class="plan-exercise-row"><span class="plan-ex-name">لاترال ريز (دمبل)</span><span class="plan-ex-sets">3 × 12-15</span></div>
+            <div class="plan-exercise-row"><span class="plan-ex-name">كابل فلاي / بيك ديك</span><span class="plan-ex-sets">3 × 12-15</span></div>
+            <div class="plan-exercise-row"><span class="plan-ex-name">ترايسبس بوش داون (كابل)</span><span class="plan-ex-sets">3 × 12</span></div>
+            <div class="plan-exercise-row" style="border:none"><span class="plan-ex-name">أوفر هيد ترايسبس اكستنشن</span><span class="plan-ex-sets">3 × 12</span></div>
+          </div>
+        </div>
+
+        <!-- Pull Day -->
+        <div class="plan-day">
+          <div class="plan-day-header" onclick="toggleCard(this)">
+            <div class="plan-day-name">يوم 2 — الثلاثاء</div>
+            <span class="plan-day-type" style="background:rgba(79,142,247,0.15);color:var(--accent)">PULL 🔵</span>
+          </div>
+          <div class="plan-day-body">
+            <div style="font-size:11px;color:var(--text3);margin-bottom:8px;font-weight:700;">ظهر + بايسبس + ريير ديلت</div>
+            <div class="plan-exercise-row"><span class="plan-ex-name">ديد ليفت (Deadlift)</span><span class="plan-ex-sets">4 × 4-5</span></div>
+            <div class="plan-exercise-row"><span class="plan-ex-name">بار بيل رو (Barbell Row)</span><span class="plan-ex-sets">4 × 6-8</span></div>
+            <div class="plan-exercise-row"><span class="plan-ex-name">لات بول داون</span><span class="plan-ex-sets">3 × 10-12</span></div>
+            <div class="plan-exercise-row"><span class="plan-ex-name">سيتد كابل رو</span><span class="plan-ex-sets">3 × 10-12</span></div>
+            <div class="plan-exercise-row"><span class="plan-ex-name">فيس بول (Face Pull)</span><span class="plan-ex-sets">3 × 15</span></div>
+            <div class="plan-exercise-row"><span class="plan-ex-name">بار بيل كيرل</span><span class="plan-ex-sets">3 × 10</span></div>
+            <div class="plan-exercise-row" style="border:none"><span class="plan-ex-name">هامر كيرل</span><span class="plan-ex-sets">3 × 12</span></div>
+          </div>
+        </div>
+
+        <!-- Legs Day -->
+        <div class="plan-day">
+          <div class="plan-day-header" onclick="toggleCard(this)">
+            <div class="plan-day-name">يوم 3 — الخميس</div>
+            <span class="plan-day-type" style="background:rgba(16,185,129,0.15);color:var(--green)">LEGS 🟢</span>
+          </div>
+          <div class="plan-day-body">
+            <div style="font-size:11px;color:var(--text3);margin-bottom:8px;font-weight:700;">أرجل كاملة + بطن</div>
+            <div class="plan-exercise-row"><span class="plan-ex-name">سكوات (Back Squat)</span><span class="plan-ex-sets">4 × 5-6</span></div>
+            <div class="plan-exercise-row"><span class="plan-ex-name">ليج بريس</span><span class="plan-ex-sets">4 × 10-12</span></div>
+            <div class="plan-exercise-row"><span class="plan-ex-name">ليج إكستنشن</span><span class="plan-ex-sets">3 × 12-15</span></div>
+            <div class="plan-exercise-row"><span class="plan-ex-name">ليج كيرل (Hamstring)</span><span class="plan-ex-sets">3 × 12</span></div>
+            <div class="plan-exercise-row"><span class="plan-ex-name">لاندج بالدمبل</span><span class="plan-ex-sets">3 × 10 لكل رجل</span></div>
+            <div class="plan-exercise-row"><span class="plan-ex-name">كاف ريز واقف</span><span class="plan-ex-sets">4 × 15-20</span></div>
+            <div class="plan-exercise-row" style="border:none"><span class="plan-ex-name">كرانش + بلانك</span><span class="plan-ex-sets">3 × 20 / 45 ث</span></div>
+          </div>
+        </div>
+
+        <!-- Upper Day -->
+        <div class="plan-day">
+          <div class="plan-day-header" onclick="toggleCard(this)">
+            <div class="plan-day-name">يوم 4 — الجمعة</div>
+            <span class="plan-day-type" style="background:rgba(245,158,11,0.15);color:var(--gold)">UPPER 🟡</span>
+          </div>
+          <div class="plan-day-body">
+            <div style="font-size:11px;color:var(--text3);margin-bottom:8px;font-weight:700;">جسم علوي كامل — حجم متوسط وضخ</div>
+            <div class="plan-exercise-row"><span class="plan-ex-name">انكلاين بار بيل بريس</span><span class="plan-ex-sets">4 × 8-10</span></div>
+            <div class="plan-exercise-row"><span class="plan-ex-name">دمبل رو أحادي</span><span class="plan-ex-sets">4 × 10</span></div>
+            <div class="plan-exercise-row"><span class="plan-ex-name">دمبل شولدر بريس جالس</span><span class="plan-ex-sets">3 × 10-12</span></div>
+            <div class="plan-exercise-row"><span class="plan-ex-name">كابل رو عريض (Wide Row)</span><span class="plan-ex-sets">3 × 12</span></div>
+            <div class="plan-exercise-row"><span class="plan-ex-name">دمبل فلاي مائل</span><span class="plan-ex-sets">3 × 12-15</span></div>
+            <div class="plan-exercise-row"><span class="plan-ex-name">بار بيل كيرل + ترايسبس ديبس</span><span class="plan-ex-sets">2 × 12</span></div>
+            <div class="plan-exercise-row" style="border:none"><span class="plan-ex-name">ريير ديلت فلاي</span><span class="plan-ex-sets">3 × 15</span></div>
+          </div>
+        </div>
+
+        <div class="tip-box">
+          <strong>💡 Progressive Overload:</strong> زود الوزن أو عدد التكرارات كل أسبوعين.
+          راحة بين السيتات 90-120 ثانية. النوم 7-8 ساعات ضروري للبناء.
+        </div>
+      </div>
+    </div>
+
+    <!-- Meal Plan -->
+    <div class="card" style="margin-bottom:12px;">
+      <div class="card-header" onclick="toggleCard(this)">
+        <div class="card-header-left">
+          <div class="card-icon" style="background:rgba(245,158,11,0.15)">🍽️</div>
+          <div class="card-title">النظام الغذائي اليومي</div>
+        </div>
+        <span class="collapse-btn">▼</span>
+      </div>
+      <div class="card-body">
+
+        <div class="meal-plan-row">
+          <div class="meal-plan-name">🌅 الفطار (7-8 ص)</div>
+          <div class="meal-plan-detail">5 بيض مسلوق أو مقلي بزيت زيتون + 4 توست أسمر + موزة + كوب حليب كامل الدسم</div>
+          <div style="font-size:11px;color:var(--accent);margin-top:3px;font-weight:700;">~700 سعرة &nbsp;|&nbsp; 48 جم بروتين</div>
+        </div>
+
+        <div class="meal-plan-row">
+          <div class="meal-plan-name">🍗 السناك الصباحي (10 ص)</div>
+          <div class="meal-plan-detail">200 جم زبادي يوناني + ملعقة عسل + حفنة مكسرات (لوز أو جوز)</div>
+          <div style="font-size:11px;color:var(--accent);margin-top:3px;font-weight:700;">~380 سعرة &nbsp;|&nbsp; 20 جم بروتين</div>
+        </div>
+
+        <div class="meal-plan-row">
+          <div class="meal-plan-name">💪 قبل الجيم (1-2 ساعة)</div>
+          <div class="meal-plan-detail">كوباية أرز أبيض (200 جم مسلوق) + 200 جم صدر دجاج مشوي + خضار</div>
+          <div style="font-size:11px;color:var(--accent);margin-top:3px;font-weight:700;">~550 سعرة &nbsp;|&nbsp; 45 جم بروتين</div>
+        </div>
+
+        <div class="meal-plan-row">
+          <div class="meal-plan-name">🍌 بعد الجيم مباشرة (30 دقيقة)</div>
+          <div class="meal-plan-detail">3 بيض مسلوق + موزتان + كوب حليب — وجبة سريعة لإعادة الطاقة</div>
+          <div style="font-size:11px;color:var(--accent);margin-top:3px;font-weight:700;">~420 سعرة &nbsp;|&nbsp; 28 جم بروتين</div>
+        </div>
+
+        <div class="meal-plan-row">
+          <div class="meal-plan-name">🍽️ الغداء (3-4 م)</div>
+          <div class="meal-plan-detail">300 جم صدر دجاج / لحم بتلو / سمك + كوباية ونص أرز أو مكرونة + سلطة + طبق خضار</div>
+          <div style="font-size:11px;color:var(--accent);margin-top:3px;font-weight:700;">~800 سعرة &nbsp;|&nbsp; 60 جم بروتين</div>
+        </div>
+
+        <div class="meal-plan-row">
+          <div class="meal-plan-name">🥜 السناك المسائي (7 م)</div>
+          <div class="meal-plan-detail">كوباية فول مدمس بزيت زيتون وليمون + 2 توست أسمر أو بطاطا مسلوقة</div>
+          <div style="font-size:11px;color:var(--accent);margin-top:3px;font-weight:700;">~350 سعرة &nbsp;|&nbsp; 18 جم بروتين</div>
+        </div>
+
+        <div class="meal-plan-row" style="border:none">
+          <div class="meal-plan-name">🌙 العشاء / قبل النوم (10 م)</div>
+          <div class="meal-plan-detail">250 جم قريش (Cottage Cheese) أو جبنة بيضاء قليلة الملح + 2 توست أسمر + خيار وطماطم</div>
+          <div style="font-size:11px;color:var(--accent);margin-top:3px;font-weight:700;">~400 سعرة &nbsp;|&nbsp; 35 جم بروتين</div>
+        </div>
+
+        <div class="tip-box" style="margin-top:10px;">
+          <strong>📊 الإجمالي اليومي:</strong> ~3600 سعرة &nbsp;|&nbsp; ~254 جم بروتين (من طعام طبيعي بالكامل)<br><br>
+          <strong>💧 الماء:</strong> 3-4 لتر يومياً &nbsp;·&nbsp;
+          <strong>🍳 البروتين الطبيعي:</strong> بيض + دجاج + لحم + سمك + قريش + حليب &nbsp;·&nbsp;
+          <strong>📅 Cheat Meal:</strong> مرة في الأسبوع
+        </div>
+      </div>
+    </div>
+
+    <!-- Supplements -->
+    <div class="card" style="margin-bottom:12px;">
+      <div class="card-header" onclick="toggleCard(this)">
+        <div class="card-header-left">
+          <div class="card-icon" style="background:rgba(124,58,237,0.15)">💊</div>
+          <div class="card-title">المكملات الطبيعية الموصى بها</div>
+        </div>
+        <span class="collapse-btn">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="plan-exercise-row" style="flex-direction:column;align-items:flex-start;gap:3px;">
+          <div style="display:flex;justify-content:space-between;width:100%">
+            <span class="plan-ex-name">🔵 Creatine Monohydrate</span>
+            <span class="plan-ex-sets">5 جم يومياً</span>
+          </div>
+          <div style="font-size:11px;color:var(--text3)">الأكثر فاعلية علمياً — يزيد القوة والحجم</div>
+        </div>
+        <div class="plan-exercise-row" style="flex-direction:column;align-items:flex-start;gap:3px;">
+          <div style="display:flex;justify-content:space-between;width:100%">
+            <span class="plan-ex-name">🟡 Vitamin D3 + K2</span>
+            <span class="plan-ex-sets">صباحاً مع أكل</span>
+          </div>
+          <div style="font-size:11px;color:var(--text3)">مهم للهرمونات والعظام والمناعة</div>
+        </div>
+        <div class="plan-exercise-row" style="flex-direction:column;align-items:flex-start;gap:3px;">
+          <div style="display:flex;justify-content:space-between;width:100%">
+            <span class="plan-ex-name">🐟 Omega 3</span>
+            <span class="plan-ex-sets">مع الأكل (2 حبة)</span>
+          </div>
+          <div style="font-size:11px;color:var(--text3)">تعافي عضلي أفضل وصحة القلب</div>
+        </div>
+        <div class="plan-exercise-row" style="flex-direction:column;align-items:flex-start;gap:3px;border:none">
+          <div style="display:flex;justify-content:space-between;width:100%">
+            <span class="plan-ex-name">⚪ Zinc + Magnesium (ZMA)</span>
+            <span class="plan-ex-sets">قبل النوم</span>
+          </div>
+          <div style="font-size:11px;color:var(--text3)">نوم أعمق + تستوستيرون طبيعي أفضل</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress Tips -->
+    <div class="card" style="margin-bottom:12px;">
+      <div class="card-header" onclick="toggleCard(this)">
+        <div class="card-header-left">
+          <div class="card-icon" style="background:rgba(245,158,11,0.15)">📊</div>
+          <div class="card-title">كيف تتابع تقدمك</div>
+        </div>
+        <span class="collapse-btn">▼</span>
+      </div>
+      <div class="card-body">
+        <div class="tip-box">
+          <strong>⚖️ الوزن:</strong> اتزن كل أسبوع صباحاً قبل الأكل. الهدف: زيادة 0.5-1 كجم شهرياً.<br><br>
+          <strong>📸 الصور:</strong> خد صورة كل 4 أسابيع من نفس الزاوية وإضاءة.<br><br>
+          <strong>💪 الأوزان في الجيم:</strong> سجل أوزانك في تبويب الجيم — لو مش بتتقدم = لازم تاكل أكتر.<br><br>
+          <strong>⏰ التوقعات الواقعية:</strong> من 74 لـ85 كجم = ~11 كجم. بـ Lean Bulk صح = 9-14 شهر حسب الانتظام.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== OVERVIEW ===== -->
+  <div id="section-overview" class="section">
+    <div class="stats-grid" id="statsGrid"></div>
+    <div id="overviewCards"></div>
+  </div>
+
+</div>
+
+<!-- ===== MODALS ===== -->
+
+<!-- Add Exercise Modal -->
+<div class="modal-overlay" id="exerciseModal">
+  <div class="modal">
+    <div class="modal-title">➕ إضافة تمرين</div>
+    <input type="text" id="exerciseNameInput" placeholder="اسم التمرين (مثلاً: بنش بريس)">
+    <div class="modal-btns">
+      <button class="modal-btn secondary" onclick="closeModal('exerciseModal')">إلغاء</button>
+      <button class="modal-btn primary" onclick="confirmAddExercise()">إضافة</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Vitamin Modal -->
+<div class="modal-overlay" id="vitaminModal">
+  <div class="modal">
+    <div class="modal-title">💊 إضافة فيتامين / مكمل</div>
+    <input type="text" id="vitaminNameInput" placeholder="اسم الفيتامين (مثلاً: Vitamin D)">
+    <input type="text" id="vitaminTimeInput" placeholder="وقت الأخذ (مثلاً: الصباح)">
+    <input type="text" id="vitaminEmojiInput" placeholder="إيموجي (اختياري 💊🟡🔵)">
+    <div class="modal-btns">
+      <button class="modal-btn secondary" onclick="closeModal('vitaminModal')">إلغاء</button>
+      <button class="modal-btn primary" onclick="confirmAddVitamin()">إضافة</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Adhkar Modal -->
+<div class="modal-overlay" id="adhkarModal">
+  <div class="modal">
+    <div class="modal-title">📿 إضافة ذكر</div>
+    <input type="text" id="adhkarTextInput" placeholder="نص الذكر">
+    <input type="number" id="adhkarTargetInput" placeholder="العدد المستهدف (مثلاً: 33)" min="1">
+    <div class="modal-btns">
+      <button class="modal-btn secondary" onclick="closeModal('adhkarModal')">إلغاء</button>
+      <button class="modal-btn primary" onclick="confirmAddAdhkar()">إضافة</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ====================== STATE ======================
+let currentDate = new Date();
+currentDate.setHours(0,0,0,0);
+
+function getDateKey(d) {
+  return d.toISOString().slice(0,10);
+}
+
+function getDayData(key) {
+  const raw = localStorage.getItem('day_' + key);
+  if (raw) return JSON.parse(raw);
+  return {
+    gymDayType: null,
+    gymNotes: '',
+    exercises: [],
+    water: 0,
+    meals: [],
+    vitamins: null,
+    prayers: {},
+    adhkar: null,
+    worship: [],
+    tasks: []
+  };
+}
+
+function saveDayData(key, data) {
+  localStorage.setItem('day_' + key, JSON.stringify(data));
+}
+
+// Global config (persisted separately)
+function getConfig() {
+  const raw = localStorage.getItem('app_config');
+  if (raw) return JSON.parse(raw);
+  return {
+    vitamins: [
+      { id: 'v1', name: 'Vitamin C', time: 'الصباح', emoji: '🟡' },
+      { id: 'v2', name: 'Vitamin D', time: 'الصباح', emoji: '🟠' },
+      { id: 'v3', name: 'Omega 3', time: 'مع الأكل', emoji: '🐟' },
+      { id: 'v4', name: 'Zinc', time: 'الليل', emoji: '⚪' },
+    ],
+    adhkar: [
+      { id: 'a1', text: 'سبحان الله', target: 33 },
+      { id: 'a2', text: 'الحمد لله', target: 33 },
+      { id: 'a3', text: 'الله أكبر', target: 34 },
+      { id: 'a4', text: 'أستغفر الله', target: 100 },
+    ],
+    weeklyTasks: [
+      { id: 'wt1', text: 'تنظيف الغرفة 🧹', day: 5 },
+      { id: 'wt2', text: 'مراجعة الأهداف الأسبوعية 🎯', day: 5 },
+    ]
+  };
+}
+
+function saveConfig(cfg) {
+  localStorage.setItem('app_config', JSON.stringify(cfg));
+}
+
+// ====================== NAVIGATION ======================
+const PRAYERS = [
+  { id: 'fajr', name: 'الفجر', emoji: '🌅' },
+  { id: 'dhuhr', name: 'الظهر', emoji: '☀️' },
+  { id: 'asr', name: 'العصر', emoji: '🌤️' },
+  { id: 'maghrib', name: 'المغرب', emoji: '🌇' },
+  { id: 'isha', name: 'العشاء', emoji: '🌙' },
+];
+
+function updateDateDisplay() {
+  const key = getDateKey(currentDate);
+  const today = getDateKey(new Date());
+  
+  const days = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+  const months = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+  
+  const dayName = days[currentDate.getDay()];
+  const label = key === today ? 'اليوم - ' : '';
+  
+  document.getElementById('currentDateDisplay').textContent = 
+    `${label}${dayName} ${currentDate.getDate()} ${months[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+  
+  // Hijri (approximate)
+  try {
+    const hijri = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', {
+      day: 'numeric', month: 'long', year: 'numeric'
+    }).format(currentDate);
+    document.getElementById('hijriDate').textContent = hijri;
+  } catch(e) {}
+}
+
+function changeDay(dir) {
+  currentDate = new Date(currentDate);
+  currentDate.setDate(currentDate.getDate() + dir);
+  updateDateDisplay();
+  renderAll();
+}
+
+function goToday() {
+  currentDate = new Date();
+  currentDate.setHours(0,0,0,0);
+  updateDateDisplay();
+  renderAll();
+}
+
+// ====================== TABS ======================
+function switchTab(tab, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('section-' + tab).classList.add('active');
+  btn.classList.add('active');
+  if (tab === 'overview') renderOverview();
+}
+
+function toggleCard(header) {
+  header.closest('.card').classList.toggle('collapsed');
+}
+
+// ====================== GYM ======================
+function renderGym() {
+  const key = getDateKey(currentDate);
+  const data = getDayData(key);
+  
+  // Day type
+  document.querySelectorAll('.day-type-btn').forEach(btn => btn.classList.remove('active'));
+  if (data.gymDayType) {
+    const btns = document.querySelectorAll('.day-type-btn');
+    btns.forEach(b => {
+      if (b.onclick.toString().includes(`'${data.gymDayType}'`)) b.classList.add('active');
+    });
+  }
+  
+  document.getElementById('gymNotes').value = data.gymNotes || '';
+  
+  const list = document.getElementById('exerciseList');
+  if (!data.exercises.length) {
+    list.innerHTML = '<div class="empty"><div class="empty-emoji">🏋️</div>لا توجد تمارين مضافة</div>';
+    return;
+  }
+  
+  list.innerHTML = data.exercises.map((ex, ei) => `
+    <div class="card" style="margin-bottom:10px;">
+      <div class="card-header" onclick="toggleCard(this)">
+        <div class="card-header-left">
+          <div class="card-title">${ex.name}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span class="progress-badge" style="color:var(--accent)">${ex.sets.filter(s=>s.done).length}/${ex.sets.length}</span>
+          <button class="delete-btn" onclick="event.stopPropagation();deleteExercise(${ei})">🗑️</button>
+          <span class="collapse-btn">▼</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="sets-container">
+          ${ex.sets.map((set, si) => `
+            <div class="set-row">
+              <div class="set-num">S${si+1}</div>
+              <input class="set-input" type="number" value="${set.weight||''}" placeholder="كيلو" 
+                onchange="updateSet(${ei},${si},'weight',this.value)" min="0">
+              <input class="set-input" type="number" value="${set.reps||''}" placeholder="عدد"
+                onchange="updateSet(${ei},${si},'reps',this.value)" min="0">
+              <button class="set-done ${set.done?'done':''}" onclick="toggleSetDone(${ei},${si})">
+                ${set.done ? '✓' : '○'}
+              </button>
+            </div>
+          `).join('')}
+        </div>
+        <button class="add-set-btn" onclick="addSet(${ei})">+ إضافة سيت</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function setDayType(type, btn) {
+  const key = getDateKey(currentDate);
+  const data = getDayData(key);
+  data.gymDayType = type;
+  saveDayData(key, data);
+  document.querySelectorAll('.day-type-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function saveGymNotes() {
+  const key = getDateKey(currentDate);
+  const data = getDayData(key);
+  data.gymNotes = document.getElementById('gymNotes').value;
+  saveDayData(key, data);
+}
+
+function openAddExerciseModal() {
+  document.getElementById('exerciseNameInput').value = '';
+  document.getElementById('exerciseModal').classList.add('open');
+  setTimeout(() => document.getElementById('exerciseNameInput').focus(), 300);
+}
+
+function confirmAddExercise() {
+  const name = document.getElementById('exerciseNameInput').value.trim();
+  if (!name) return;
+  const key = getDateKey(currentDate);
+  const data = getDayData(key);
+  data.exercises.push({ name, sets: [{ weight: '', reps: '', done: false }] });
+  saveDayData(key, data);
+  closeModal('exerciseModal');
+  renderGym();
+  showToast('✅ تم إضافة ' + name);
+}
+
+function deleteExercise(ei) {
+  const key = getDateKey(currentDate);
+  const data = getDayData(key);
+  data.exercises.splice(ei, 1);
+  saveDayData(key, data);
+  renderGym();
+}
+
+function addSet(ei) {
+  const key = getDateKey(currentDate);
+  const data = getDayData(key);
+  data.exercises[ei].sets.push({ weight: '', reps: '', done: false });
+  saveDayData(key, data);
+  renderGym();
+}
+
+function updateSet(ei, si, field, val) {
+  const key = getDateKey(currentDate);
+  const data = getDayData(key);
+  data.exercises[ei].sets[si][field] = val;
+  saveDayData(key, data);
+}
+
+function toggleSetDone(ei, si) {
+  const key = getDateKey(currentDate);
+  const data = getDayData(key);
+  data.exercises[ei].sets[si].done = !data.exercises[ei].sets[si].done;
+  saveDayData(key, data);
+  renderGym();
+}
+
+// ====================== FOOD ======================
+function renderFood() {
+  const key = getDateKey(currentDate);
+  const data = getDayData(key);
+  const cfg = getConfig();
+  
+  // Water
+  const water = data.water || 0;
+  document.getElementById('waterCount').textContent = water + ' كوب';
+  document.getElementById('waterBadge').textContent = water + ' / 8';
+  let cups = '';
+  for (let i = 0; i < 8; i++) cups += `<span class="water-cup ${i < water ? 'filled' : ''}">💧</span>`;
+  document.getElementById('waterCups').innerHTML = cups;
+  
+  // Meals
+  const meals = data.meals || [];
+  const mealList = document.getElementById('mealList');
+  mealList.innerHTML = meals.map((m, i) => `
+    <div class="food-row">
+      <input class="food-input" value="${m.name}" placeholder="اسم الوجبة" 
+        onchange="updateMeal(${i},'name',this.value)">
+      <input class="food-input" value="${m.calories||''}" placeholder="سعرات" type="number"
+        onchange="updateMeal(${i},'calories',this.value)" style="padding:9px 8px;">
+      <button class="food-check ${m.done?'done':''}" onclick="toggleMeal(${i})">
+        ${m.done ? '✓' : '○'}
+      </button>
+    </div>
+  `).join('');
+  document.getElementById('mealBadge').textContent = meals.filter(m=>m.done).length + '/' + meals.length;
+  
+  // Vitamins
+  const vitDone = data.vitamins || {};
+  const vitGrid = document.getElementById('vitaminGrid');
+  vitGrid.innerHTML = cfg.vitamins.map(v => `
+    <div class="vitamin-item ${vitDone[v.id] ? 'done' : ''}" onclick="toggleVitamin('${v.id}')">
+      ${vitDone[v.id] ? '<span class="vitamin-check">✅</span>' : ''}
+      <span class="vitamin-emoji">${v.emoji || '💊'}</span>
+      <div>
+        <div class="vitamin-name">${v.name}</div>
+        <div class="vitamin-time">${v.time}</div>
+      </div>
+    </div>
+  `).join('');
+  
+  const doneCount = cfg.vitamins.filter(v => vitDone[v.id]).length;
+  document.getElementById('vitaminBadge').textContent = doneCount + '/' + cfg.vitamins.length;
+}
+
+function addWater(n) {
+  const key = getDateKey(currentDate);
+  const data = getDayData(key);
+  data.water = Math.max(0, Math.min(20, (data.water || 0) + n));
+  saveDayData(key, data);
+  renderFood();
+}
+
+function addMeal() {
+  const key = getDateKey(currentDate);
+  const data = getDayData(key);
+  if (!data.meals) data.meals = [];
+  data.meals.push({ name: '', calories: '', done: false });
+  saveDayData(key, data);
+  renderFood();
+}
+
+function updateMeal(i, field, val) {
+  const key = getDateKey(currentDate);
+  const data = getDayData(key);
+  data.meals[i][field] = val;
+  saveDayData(key, data);
+  document.getElementById('mealBadge').textContent = data.meals.filter(m=>m.done).length + '/' + data.meals.length;
+}
+
+function toggleMeal(i) {
+  const key = getDateKey(currentDate);
+  const data = getDayData(key);
+  data.meals[i].done = !data.meals[i].done;
+  saveDayData(key, data);
+  renderFood();
+}
+
+function toggleVitamin(vid) {
+  const key = getDateKey(currentDate);
+  const data = getDayData(key);
+  if (!data.vitamins) data.vitamins = {};
+  data.vitamins[vid] = !data.vitamins[vid];
+  saveDayData(key, data);
+  renderFood();
+}
+
+function openAddVitaminModal() {
+  document.getElementById('vitaminNameInput').value = '';
+  document.getElementById('vitaminTimeInput').value = '';
+  document.getElementById('vitaminEmojiInput').value = '';
+  document.getElementById('vitaminModal').classList.add('open');
+  setTimeout(() => document.getElementById('vitaminNameInput').focus(), 300);
+}
+
+function confirmAddVitamin() {
+  const name = document.getElementById('vitaminNameInput').value.trim();
+  if (!name) return;
+  const cfg = getConfig();
+  cfg.vitamins.push({
+    id: 'v' + Date.now(),
+    name,
+    time: document.getElementById('vitaminTimeInput').value || '',
+    emoji: document.getElementById('vitaminEmojiInput').value || '💊'
+  });
+  saveConfig(cfg);
+  closeModal('vitaminModal');
+  renderFood();
+  showToast('✅ تم إضافة ' + name);
+}
+
+// ====================== PRAYER ======================
+function renderPrayer() {
+  const key = getDateKey(currentDate);
+  const data = getDayData(key);
+  const cfg = getConfig();
+  
+  // Prayers
+  const pDone = data.prayers || {};
+  const grid = document.getElementById('prayerGrid');
+  grid.innerHTML = PRAYERS.map(p => `
+    <div class="prayer-item ${pDone[p.id] ? 'done' : ''}" onclick="togglePrayer('${p.id}')">
+      <div class="prayer-emoji">${p.emoji}</div>
+      <div class="prayer-name">${p.name}</div>
+      <div class="prayer-check">${pDone[p.id] ? '✅' : '⬜'}</div>
+    </div>
+  `).join('');
+  
+  const pCount = PRAYERS.filter(p => pDone[p.id]).length;
+  document.getElementById('prayerBadge').textContent = pCount + ' / 5';
+  
+  // Adhkar
+  const aDone = data.adhkar || {};
+  const adhkarList = document.getElementById('adhkarList');
+  adhkarList.innerHTML = cfg.adhkar.map(a => {
+    const count = aDone[a.id] || 0;
+    const done = count >= a.target;
+    return `
+      <div class="adhkar-item ${done ? 'done' : ''}">
+        <div class="adhkar-counter">${count}</div>
+        <div>
+          <div class="adhkar-text">${a.text}</div>
+          <div class="adhkar-target">المستهدف: ${a.target}</div>
+        </div>
+        <button class="adhkar-tap-btn" onclick="tapAdhkar('${a.id}', ${a.target})">+</button>
+        <button class="delete-btn" onclick="deleteAdhkar('${a.id}')" style="font-size:14px">🗑️</button>
+      </div>
+    `;
+  }).join('') || '<div class="empty"><div class="empty-emoji">📿</div>لا توجد أذكار</div>';
+  
+  const totalDone = cfg.adhkar.filter(a => (aDone[a.id]||0) >= a.target).length;
+  document.getElementById('adhkarBadge').textContent = totalDone + '/' + cfg.adhkar.length;
+  
+  // Worship extras
+  const worship = data.worship || [];
+  const wList = document.getElementById('worshipList');
+  wList.innerHTML = worship.map((w, i) => `
+    <div class="adhkar-item ${w.done ? 'done' : ''}" onclick="toggleWorship(${i})">
+      <span style="font-size:20px">${w.done ? '✅' : '⬜'}</span>
+      <div class="adhkar-text">${w.text}</div>
+      <button class="delete-btn" onclick="event.stopPropagation();deleteWorship(${i})">🗑️</button>
+    </div>
+  `).join('') || '<div class="empty"><div class="empty-emoji">📖</div>لا توجد عبادات مضافة</div>';
+}
+
+function togglePrayer(pid) {
+  const key = getDateKey(currentDate);
+  const data = getDayData(key);
+  if (!data.prayers) data.prayers = {};
+  data.prayers[pid] = !data.prayers[pid];
+  saveDayData(key, data);
+  renderPrayer();
+  if (data.prayers[pid]) showToast('🤲 ' + PRAYERS.find(p=>p.id===pid).name);
+}
+
+function tapAdhkar(aid, target) {
+  const key = getDateKey(currentDate);
+  const data = getDayData(key);
+  if (!data.adhkar) data.adhkar = {};
+  const cur = data.adhkar[aid] || 0;
+  if (cur < target) {
+    data.adhkar[aid] = cur + 1;
+    if (data.adhkar[aid] >= target) showToast('✨ اكتملت ' + getConfig().adhkar.find(a=>a.id===aid)?.text);
+  } else {
+    data.adhkar[aid] = 0; // reset
+  }
+  saveDayData(key, data);
+  renderPrayer();
+}
+
+function openAddAdhkarModal() {
+  document.getElementById('adhkarTextInput').value = '';
+  document.getElementById('adhkarTargetInput').value = '';
+  document.getElementById('adhkarModal').classList.add('open');
+  setTimeout(() => document.getElementById('adhkarTextInput').focus(), 300);
+}
+
+function confirmAddAdhkar() {
+  const text = document.getElementById('adhkarTextInput').value.trim();
+  const target = parseInt(document.getElementById('adhkarTargetInput').value) || 33;
+  if (!text) return;
+  const cfg = getConfig();
+  cfg.adhkar.push({ id: 'a' + Date.now(), text, target });
+  saveConfig(cfg);
+  closeModal('adhkarModal');
+  renderPrayer();
+  showToast('✅ تم إضافة الذكر');
+}
+
+function deleteAdhkar(aid) {
+  const cfg = getConfig();
+  cfg.adhkar = cfg.adhkar.filter(a => a.id !== aid);
+  saveConfig(cfg);
+  renderPrayer();
+}
+
+function addWorshipItem() {
+  const text = prompt('أدخل العبادة أو الورد:');
+  if (!text || !text.trim()) return;
+  const key = getDateKey(currentDate);
+  const data = getDayData(key);
+  if (!data.worship) data.worship = [];
+  data.worship.push({ text: text.trim(), done: false });
+  saveDayData(key, data);
+  renderPrayer();
+}
+
+function toggleWorship(i) {
+  const key = getDateKey(currentDate);
+  const data = getDayData(key);
+  data.worship[i].done = !data.worship[i].done;
+  saveDayData(key, data);
+  renderPrayer();
+}
+
+function deleteWorship(i) {
+  const key = getDateKey(currentDate);
+  const data = getDayData(key);
+  data.worship.splice(i, 1);
+  saveDayData(key, data);
+  renderPrayer();
+}
+
+// ====================== TASKS ======================
+function renderTasks() {
+  const key = getDateKey(currentDate);
+  const data = getDayData(key);
+  const cfg = getConfig();
+  const tasks = data.tasks || [];
+  
+  // Day tasks
+  const dayTasks = tasks.filter(t => t.type !== 'weekly');
+  const taskList = document.getElementById('taskList');
+  taskList.innerHTML = dayTasks.length ? dayTasks.map((t, i) => `
+    <div class="task-item ${t.done ? 'done' : ''}">
+      <button class="task-check-btn ${t.done ? 'done' : ''}" onclick="toggleTask(${i})">
+        ${t.done ? '✓' : ''}
+      </button>
+      <div class="task-text">${t.text}</div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span class="task-badge ${t.type === 'daily' ? 'badge-daily' : 'badge-once'}">
+          ${t.type === 'daily' ? 'يومي' : 'مرة'}
+        </span>
+        <button class="delete-btn" onclick="deleteTask(${i})">✕</button>
+      </div>
+    </div>
+  `).join('') : '<div class="empty"><div class="empty-emoji">✅</div>لا توجد مهام</div>';
+  
+  const doneCount = dayTasks.filter(t=>t.done).length;
+  document.getElementById('tasksBadge').textContent = doneCount + '/' + dayTasks.length;
+  
+  // Weekly tasks
+  const todayDay = currentDate.getDay(); // 0=sun
+  const weeklyList = document.getElementById('weeklyTaskList');
+  const weeklyTasks = cfg.weeklyTasks || [];
+  weeklyList.innerHTML = weeklyTasks.length ? weeklyTasks.map((t, i) => {
+    const doneKey = 'wt_' + getWeekKey() + '_' + t.id;
+    const done = localStorage.getItem(doneKey) === '1';
+    const dayNames = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+    return `
+      <div class="task-item ${done ? 'done' : ''}">
+        <button class="task-check-btn ${done ? 'done' : ''}" onclick="toggleWeeklyTask('${t.id}')">
+          ${done ? '✓' : ''}
+        </button>
+        <div class="task-text">${t.text}</div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span class="task-badge badge-weekly">${dayNames[t.day]}</span>
+          <button class="delete-btn" onclick="deleteWeeklyTask(${i})">✕</button>
+        </div>
+      </div>
+    `;
+  }).join('') : '<div class="empty"><div class="empty-emoji">📅</div>لا توجد مهام أسبوعية</div>';
+}
+
+function getWeekKey() {
+  const d = new Date(currentDate);
+  const day = d.getDay();
+  const diff = d.getDate() - day;
+  d.setDate(diff);
+  return d.toISOString().slice(0,10);
+}
+
+function addTask() {
+  const text = document.getElementById('newTaskInput').value.trim();
+  const type = document.getElementById('newTaskType').value;
+  if (!text) return;
+  
+  if (type === 'weekly') {
+    const cfg = getConfig();
+    if (!cfg.weeklyTasks) cfg.weeklyTasks = [];
+    cfg.weeklyTasks.push({ id: 'wt' + Date.now(), text, day: currentDate.getDay() });
+    saveConfig(cfg);
+  } else {
+    const key = getDateKey(currentDate);
+    const data = getDayData(key);
+    if (!data.tasks) data.tasks = [];
+    data.tasks.push({ text, type, done: false });
+    saveDayData(key, data);
+  }
+  
+  document.getElementById('newTaskInput').value = '';
+  renderTasks();
+  showToast('✅ تم إضافة المهمة');
+}
+
+function toggleTask(i) {
+  const key = getDateKey(currentDate);
+  const data = getDayData(key);
+  const dayTasks = data.tasks.filter(t => t.type !== 'weekly');
+  const actualIdx = data.tasks.indexOf(dayTasks[i]);
+  data.tasks[actualIdx].done = !data.tasks[actualIdx].done;
+  saveDayData(key, data);
+  renderTasks();
+}
+
+function deleteTask(i) {
+  const key = getDateKey(currentDate);
+  const data = getDayData(key);
+  const dayTasks = data.tasks.filter(t => t.type !== 'weekly');
+  const actualIdx = data.tasks.indexOf(dayTasks[i]);
+  data.tasks.splice(actualIdx, 1);
+  saveDayData(key, data);
+  renderTasks();
+}
+
+function toggleWeeklyTask(tid) {
+  const doneKey = 'wt_' + getWeekKey() + '_' + tid;
+  const current = localStorage.getItem(doneKey) === '1';
+  localStorage.setItem(doneKey, current ? '0' : '1');
+  renderTasks();
+}
+
+function deleteWeeklyTask(i) {
+  const cfg = getConfig();
+  cfg.weeklyTasks.splice(i, 1);
+  saveConfig(cfg);
+  renderTasks();
+}
+
+// ====================== OVERVIEW ======================
+function renderOverview() {
+  const key = getDateKey(currentDate);
+  const data = getDayData(key);
+  const cfg = getConfig();
+  
+  const prayers = PRAYERS.filter(p => (data.prayers||{})[p.id]).length;
+  const adhkarDone = cfg.adhkar.filter(a => ((data.adhkar||{})[a.id]||0) >= a.target).length;
+  const vitsDone = cfg.vitamins.filter(v => (data.vitamins||{})[v.id]).length;
+  const tasks = (data.tasks||[]).filter(t=>t.done).length;
+  const totalTasks = (data.tasks||[]).length;
+  const exDone = (data.exercises||[]).reduce((acc, ex) => acc + ex.sets.filter(s=>s.done).length, 0);
+  const exTotal = (data.exercises||[]).reduce((acc, ex) => acc + ex.sets.length, 0);
+  
+  const overallPct = Math.round(([
+    prayers / 5,
+    adhkarDone / Math.max(cfg.adhkar.length, 1),
+    vitsDone / Math.max(cfg.vitamins.length, 1),
+    totalTasks > 0 ? tasks / totalTasks : 1,
+    exTotal > 0 ? exDone / exTotal : 1
+  ].reduce((a,b)=>a+b,0) / 5) * 100);
+  
+  document.getElementById('statsGrid').innerHTML = `
+    <div class="stat-card">
+      <div class="stat-value" style="color:var(--gold)">${prayers}/5</div>
+      <div class="stat-label">الصلوات</div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${prayers/5*100}%;background:var(--gold)"></div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" style="color:var(--accent)">${exDone}/${exTotal||'?'}</div>
+      <div class="stat-label">السيتات المكتملة</div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${exTotal?(exDone/exTotal*100):0}%;background:var(--accent)"></div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" style="color:var(--green)">${tasks}/${totalTasks||0}</div>
+      <div class="stat-label">المهام</div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${totalTasks?(tasks/totalTasks*100):0}%;background:var(--green)"></div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" style="color:${overallPct>=80?'var(--green)':overallPct>=50?'var(--gold)':'var(--red)'}">${overallPct}%</div>
+      <div class="stat-label">إنجاز اليوم</div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${overallPct}%;background:${overallPct>=80?'var(--green)':overallPct>=50?'var(--gold)':'var(--red)'}"></div></div>
+    </div>
+  `;
+  
+  // Notes
+  document.getElementById('overviewCards').innerHTML = `
+    <div class="card">
+      <div class="card-header" onclick="toggleCard(this)">
+        <div class="card-header-left">
+          <div class="card-title">📝 ملاحظات اليوم</div>
+        </div>
+        <span class="collapse-btn">▼</span>
+      </div>
+      <div class="card-body">
+        <textarea class="note-area" placeholder="اكتب ملاحظاتك عن اليوم..." id="dayNotes" 
+          oninput="saveDayNotes()" rows="4">${data.dayNotes||''}</textarea>
+      </div>
+    </div>
+    <div class="save-indicator">💾 يتم الحفظ تلقائياً</div>
+  `;
+}
+
+function saveDayNotes() {
+  const key = getDateKey(currentDate);
+  const data = getDayData(key);
+  data.dayNotes = document.getElementById('dayNotes').value;
+  saveDayData(key, data);
+}
+
+// ====================== MODALS ======================
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+  });
+});
+
+// ====================== TOAST ======================
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ====================== FINANCE ======================
+let currentFinType = 'income';
+
+function setFinType(type) {
+  currentFinType = type;
+  document.getElementById('finTypeIncome').classList.toggle('active', type === 'income');
+  document.getElementById('finTypeExpense').classList.toggle('active', type === 'expense');
+}
+
+function renderFinance() {
+  const key = getDateKey(currentDate);
+  const data = getDayData(key);
+  const entries = data.finances || [];
+
+  const income = entries.filter(e => e.type === 'income').reduce((a, e) => a + e.amount, 0);
+  const expense = entries.filter(e => e.type === 'expense').reduce((a, e) => a + e.amount, 0);
+  const balance = income - expense;
+  const pct = income > 0 ? Math.min(100, Math.round(expense / income * 100)) : 0;
+
+  document.getElementById('totalIncome').textContent = income.toLocaleString('ar-EG');
+  document.getElementById('totalExpense').textContent = expense.toLocaleString('ar-EG');
+  document.getElementById('totalBalance').textContent = balance.toLocaleString('ar-EG');
+  document.getElementById('expensePct').textContent = pct + '%';
+
+  const balStat = document.getElementById('balanceStat');
+  balStat.style.background = balance >= 0 ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)';
+  balStat.style.borderColor = balance >= 0 ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)';
+  document.getElementById('totalBalance').style.color = balance >= 0 ? 'var(--green)' : 'var(--red)';
+
+  const bar = document.getElementById('budgetBarFill');
+  bar.style.width = pct + '%';
+  bar.style.background = pct < 60 ? 'var(--green)' : pct < 85 ? 'var(--gold)' : 'var(--red)';
+
+  document.getElementById('finCount').textContent = entries.length;
+
+  const list = document.getElementById('finList');
+  if (!entries.length) {
+    list.innerHTML = '<div class="empty"><div class="empty-emoji">💸</div>لا توجد حركات مالية</div>';
+    return;
+  }
+
+  list.innerHTML = [...entries].reverse().map((e, ri) => {
+    const i = entries.length - 1 - ri;
+    return `
+      <div class="fin-entry">
+        <div class="fin-entry-dot" style="background:${e.type === 'income' ? 'var(--green)' : 'var(--red)'}"></div>
+        <div style="flex:1">
+          <div class="fin-entry-name">${e.desc || (e.type === 'income' ? 'دخل' : 'مصروف')}</div>
+          <div class="fin-entry-cat">${e.type === 'income' ? '⬆️ دخل' : '⬇️ مصروف'}</div>
+        </div>
+        <div class="fin-entry-amount" style="color:${e.type === 'income' ? 'var(--green)' : 'var(--red)'}">
+          ${e.type === 'income' ? '+' : '-'}${e.amount.toLocaleString('ar-EG')}
+        </div>
+        <button class="delete-btn" onclick="deleteFinEntry(${i})">✕</button>
+      </div>
+    `;
+  }).join('');
+}
+
+function addFinEntry() {
+  const desc = document.getElementById('finDesc').value.trim();
+  const amount = parseFloat(document.getElementById('finAmount').value);
+  if (!amount || amount <= 0) { showToast('⚠️ أدخل مبلغ صحيح'); return; }
+
+  const key = getDateKey(currentDate);
+  const data = getDayData(key);
+  if (!data.finances) data.finances = [];
+  data.finances.push({ type: currentFinType, desc, amount });
+  saveDayData(key, data);
+
+  document.getElementById('finDesc').value = '';
+  document.getElementById('finAmount').value = '';
+  renderFinance();
+  showToast(currentFinType === 'income' ? '✅ تم إضافة الدخل' : '✅ تم إضافة المصروف');
+}
+
+function deleteFinEntry(i) {
+  const key = getDateKey(currentDate);
+  const data = getDayData(key);
+  data.finances.splice(i, 1);
+  saveDayData(key, data);
+  renderFinance();
+}
+
+
+function renderAll() {
+  renderGym();
+  renderFood();
+  renderPrayer();
+  renderTasks();
+  renderFinance();
+}
+
+// Init
+updateDateDisplay();
+renderAll();
+</script>
+</body>
+</html>
